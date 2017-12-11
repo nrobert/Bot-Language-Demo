@@ -1,0 +1,42 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <link href="https://cdn.botframework.com/botframework-webchat/latest/botchat.css" rel="stylesheet" />
+</head>
+<body>
+    <div id="bot" />
+    <script src="https://cdn.botframework.com/botframework-webchat/latest/botchat.js"></script>
+    <script>
+		// Get parameters from query
+		const params = BotChat.queryParams(location.search);
+
+		// Language definition
+		var chatLocale = params['locale'] || window.navigator.language;
+        
+		// Connection settings
+        const botConnectionSettings = new BotChat.DirectLine({
+			domain: params['domain'],
+            secret: 'YOUR_SECRET',
+			webSocket: params['webSocket'] && params['webSocket'] === 'true' // defaults to true
+		});
+
+		// Webchat init
+        BotChat.App({
+            botConnection: botConnectionSettings,
+            user: { id: 'userid' },
+            bot: { id: 'botid' },
+			locale: chatLocale,
+			resize: 'detect'
+        }, document.getElementById('bot'));
+        
+		// Send message to provide language of user
+        botConnectionSettings.postActivity({
+			type: 'event',
+            from: { id: 'userid' },
+			locale: chatLocale,
+			name: 'localeSelectionEvent',
+			value: chatLocale
+		}).subscribe(function (id) { console.log('event language "' + chatLocale + '" selection sent'); });
+    </script>
+</body>
+</html>
